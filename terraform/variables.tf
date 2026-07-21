@@ -1,11 +1,15 @@
 variable "namespace" {
-    type = string
+  type = string
 }
 
 variable "environment" {
-    type = string
+  type = string
+}
+
+variable "image_repository" {
+  type        = string
 }
 
 variable "image_tag" {
-    type = string
+  type = string
 }

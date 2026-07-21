@@ -48,4 +48,6 @@ Examples: https://github.com/firecow/gitlab-ci-local/tree/master/examples
 - Missing `=` character inside of providers.tf in Helm, within Kubernetes config part
 - The prepared config_path for the kubernetes wasn't the same like my k3s installation created by default, changed to my working value.
 - The `chart      = "../helm/homework"` wasn't the proper value with the prepared helm chart folder structure, changed to `chart      = "../helm"`
+- Created a `tfvars/prod_terraform.tfvars` for the "PROD" variables to prevent hardcoded values or manual declaration. (These values are overwriting the Helm chart values, didn't change on Helm value to be able to run with local helm command with already prepared imagge name)
+- Also changed the hardcoded "production" namespace to the variable which was already created in the variables.tf.
 
