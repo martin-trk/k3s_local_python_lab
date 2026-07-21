@@ -51,3 +51,16 @@ Examples: https://github.com/firecow/gitlab-ci-local/tree/master/examples
 - Created a `tfvars/prod_terraform.tfvars` for the "PROD" variables to prevent hardcoded values or manual declaration. (These values are overwriting the Helm chart values, didn't change on Helm value to be able to run with local helm command with already prepared imagge name)
 - Also changed the hardcoded "production" namespace to the variable which was already created in the variables.tf.
 
+
+### Gitlab CI
+
+- Added quite robust Gitlab CI jobs and configs
+- Created a small Docker build job which just builds and pushed the image to the registry I was running on the AKS Cluster. (Left some attributes regarding the Gitlab-ci-local, these might end up in erros in real Gitlab pipelines)
+- Created a `terraform_setup` anchor with all the parts which every terraform might use.
+- I've changed the prepared "deploy" job to a `terraform plan` and dedicated `terraform apply` job
+    - The plan job uses the tfvars within the job command.
+    - The plan saves the tfplan and passes the artifacts to the apply job
+- Added additional `terraform_destroy_plan` and `terraform_destroy_apply` jobs which only appears on the real pipeline if the env variable of `CONFIRM_TO_DESTROY` equals to `true`. Just to try to ease my work on the testing. And also might be useful in real-world examples.
+- Added local "job" `variable-set-job-for-local-test` which enables to copy and paste the whole job with all the commands to set the variables which would be set by the pipeline itself on a real one.
+
+## End of Iteration 2.
