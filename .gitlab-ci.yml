@@ -2,6 +2,12 @@ stages:
   - build
   - deploy
 
+variables:
+  LOCAL_DOCKER_REGISTRY: "registry:5000"
+  MYAPP_IMAGE: "myapp"
+  MYAPP_IMAGE_TAG: "v0.1.0-ci"
+  MYAPP_FULL_PATH: "$LOCAL_DOCKER_REGISTRY/$MYAPP_IMAGE:$MYAPP_IMAGE_TAG"
+
 build:
   image: docker:cli
   services:
