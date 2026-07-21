@@ -6,16 +6,17 @@ resource "kubernetes_namespace" "homework" {
 
 resource "helm_release" "homework" {
     name       = "homework"
-    chart      = "../helm/homework"
+  chart      = "../helm"
     namespace  = kubernetes_namespace.homework.metadata[0].name
 
-    set {
+  set = [
+    {
         name  = "image.tag"
-        value = 
-    }
-
-    set {
+        value = var.image_tag
+    },
+    {
         name  = "environment"
-        value = prod
+        value = var.environment
     }
+  ]
 }

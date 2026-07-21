@@ -39,3 +39,13 @@ Commited all the gitlab-ci-local related configs, maybe anyone else can try it o
 More information: https://github.com/firecow/gitlab-ci-local
 
 Examples: https://github.com/firecow/gitlab-ci-local/tree/master/examples
+
+### Terraform issues/small improvements
+- Multiple issues on the set block in main.tf:
+    - Missing value in `value` of `image.tag`
+    - Missing `=` character after the `set` keyword and before the entities
+    - Multiple set blocks are not supported, changed as one set block, and changed all of them to the variable mappings which were defined in the variables.tf
+- Missing `=` character inside of providers.tf in Helm, within Kubernetes config part
+- The prepared config_path for the kubernetes wasn't the same like my k3s installation created by default, changed to my working value.
+- The `chart      = "../helm/homework"` wasn't the proper value with the prepared helm chart folder structure, changed to `chart      = "../helm"`
+
