@@ -27,3 +27,15 @@ Was able to init and install the helm chart with the first, basic image version.
 Solved the image passing problem through the docker deamon to the k3s with `docker save` and `k3s ctr images import` commands. Didn't want to take time with external container registry.
 
 ## End of Iteration 1.
+
+## Iteration 2.
+
+### Gitlab-ci-local
+
+I've tried to run all the jobs with Gitlab-Ci-Local, to make sure everything is working as expected, but I was always running into different network or permission errors. I've started to check whats the issue, so I can resolve that easily, but turned into a really deep rabbit hole, so I've decided to just let it go due to the small timebox. I don't usually like leaving issues unresolved, but it felt like the right trade-off for this assessment.
+
+Commited all the gitlab-ci-local related configs, maybe anyone else can try it out.
+
+More information: https://github.com/firecow/gitlab-ci-local
+
+Examples: https://github.com/firecow/gitlab-ci-local/tree/master/examples

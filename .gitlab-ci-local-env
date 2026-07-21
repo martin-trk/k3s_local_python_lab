@@ -1,0 +1,3 @@
+PRIVILEGED=true
+ULIMIT=8000:16000
+VOLUME=certs:/certs/client

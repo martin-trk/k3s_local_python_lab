@@ -3,9 +3,17 @@ stages:
   - deploy
 
 build:
+  image: docker:cli
+  services:
+    - name: docker:dind
+      command:
+        - --insecure-registry=registry:5000
+  variables:
+    DOCKER_TLS_CERTDIR: ""
   stage: build
   script:
-    - echo "Building the application..."
+    - docker build --tag ${MYAPP_FULL_PATH} ./app
+    - docker push ${MYAPP_FULL_PATH}
 
 deploy:
   stage: deploy
