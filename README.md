@@ -193,7 +193,7 @@ Fixed three deploy-blocking bugs:
 ###### Gitlab CI
 
 - Added a Docker build and push job
-- Added a shared `terraform_shared` anchor which is used by all the Terraform jobs
+- Added a shared `terraform_setup` anchor which is used by all the Terraform jobs
 - Splitted `deploy` job into Terraform `plan` and `apply`
 - Added `destroy` jobs in case of environment clean-up, especially in local environments
 - Gated the `destroy` job behind `CONFIRM_TO_DESTROY` variable, nly appears if it is added
@@ -201,6 +201,9 @@ Fixed three deploy-blocking bugs:
 - Implemented Terraform plan job with plan file to prevent unneeded changes. Identical file creation with the value with combining pipeline ID and the pipeline start time stamp
 - Adding multiple TF Vars mapped with branching strategy similar to GitFlow
     - The job is getting the tfvar based on the branch we are running the pipeline
+    - `develop` branch -> develop environment
+    - RC tags (v1.2.3-rc1, v1.2.3-rc.1, etc.) -> preprod environment
+    - Release tags (v1.2.3) -> prod environment
 
 ##### Assumptions
 

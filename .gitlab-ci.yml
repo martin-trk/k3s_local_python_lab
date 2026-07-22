@@ -16,33 +16,33 @@ variables:
   TF_PLAN_FILE: "assessment-plan-${CI_PIPELINE_ID}.tfplan"
   LOCAL_RUN: "false"
 
+# Tag/branch -> environment. First match wins: RC tags before plain tags,
+# since an RC tag is still a tag. Anything unmatched is excluded (when: never).
 .env_rules: &env_rules
-  - if: '$CI_COMMIT_TAG || $CI_COMMIT_BRANCH == "main"'
-    variables:
-      TF_VARS_FILE: "tfvars/prod_terraform.tfvars"
-  - if: '$CI_COMMIT_BRANCH =~ /^release\/.*/'
+  - if: '$CI_COMMIT_TAG =~ /-rc\.?[0-9]*$/'
     variables:
       TF_VARS_FILE: "tfvars/preprod_terraform.tfvars"
-  - if: '$CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH =~ /^feat\/.*/'
+  - if: '$CI_COMMIT_TAG'
+    variables:
+      TF_VARS_FILE: "tfvars/prod_terraform.tfvars"
+  - if: '$CI_COMMIT_BRANCH == "develop"'
     variables:
       TF_VARS_FILE: "tfvars/dev_terraform.tfvars"
-  - if: '$CI_COMMIT_BRANCH'
-    when: never
+  - when: never
 
 .env_rules_destroy: &env_rules_destroy
   - if: '$CONFIRM_TO_DESTROY != "true"'
     when: never
-  - if: '$CI_COMMIT_TAG || $CI_COMMIT_BRANCH == "main"'
-    variables:
-      TF_VARS_FILE: "tfvars/prod_terraform.tfvars"
-  - if: '$CI_COMMIT_BRANCH =~ /^release\/.*/'
+  - if: '$CI_COMMIT_TAG =~ /-rc\.?[0-9]*$/'
     variables:
       TF_VARS_FILE: "tfvars/preprod_terraform.tfvars"
-  - if: '$CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH =~ /^feat\/.*/'
+  - if: '$CI_COMMIT_TAG'
+    variables:
+      TF_VARS_FILE: "tfvars/prod_terraform.tfvars"
+  - if: '$CI_COMMIT_BRANCH == "develop"'
     variables:
       TF_VARS_FILE: "tfvars/dev_terraform.tfvars"
-  - if: '$CI_COMMIT_BRANCH'
-    when: never
+  - when: never
 
 # Created for local test due to the failure of gitlab-ci-local
 # Ready to copy and paste commands to set the variables which would been set by the pipeline on variables block above.

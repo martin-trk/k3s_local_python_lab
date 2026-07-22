@@ -73,6 +73,7 @@ Examples: https://github.com/firecow/gitlab-ci-local/tree/master/examples
 
 - Realized some warnings regarding deprecated resource name
     - Replaced `kubernetes_namespace` -> `kubernetes_namespace_v1` on both places
+- adding multi environment setup
 
 ### Gitlab CI
 
@@ -84,6 +85,7 @@ Examples: https://github.com/firecow/gitlab-ci-local/tree/master/examples
 - added the `terraform_apply` as the optional needs of destroy (only destroy after deploying, but preparing also for destroyingg it in a different pipeline)
 - added a `destroy` word for the destroy job to prevent mixed TF Plan files
 - fixing missalignments on the stages and job stages
+- adding multi environment setup
 
 ### Docker
 
