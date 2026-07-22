@@ -1,3 +1,8 @@
+##############################################
+# All the Gitlab CI job commands are prepared for ready
+# to paste from the script section to the local terminal 
+##########################################
+
 stages:
   - build
   - pre-terraform

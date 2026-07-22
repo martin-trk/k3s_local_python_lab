@@ -196,14 +196,15 @@ Fixed three deploy-blocking bugs:
 - Added a shared `terraform_setup` anchor which is used by all the Terraform jobs
 - Splitted `deploy` job into Terraform `plan` and `apply`
 - Added `destroy` jobs in case of environment clean-up, especially in local environments
-- Gated the `destroy` job behind `CONFIRM_TO_DESTROY` variable, nly appears if it is added
+- Gated the `destroy` job behind `CONFIRM_TO_DESTROY` variable, only appears if it is added
 - Added a local-only job for copy-pasting pipeline variables which are not present by default when testing it locally
-- Implemented Terraform plan job with plan file to prevent unneeded changes. Identical file creation with the value with combining pipeline ID and the pipeline start time stamp
+- Implemented Terraform plan job with plan file to prevent unneeded changes. ~~Identical file creation with the value with combining pipeline ID and the pipeline start time stamp~~
+    - Removed the date identifier to prevent inconsistencies
 - Adding multiple TF Vars mapped with branching strategy similar to GitFlow
     - The job is getting the tfvar based on the branch we are running the pipeline
     - `develop` branch -> develop environment
-    - RC tags (v1.2.3-rc1, v1.2.3-rc.1, etc.) -> preprod environment
-    - Release tags (v1.2.3) -> prod environment
+    - RC tags (`v1.2.3-rc1`, `v1.2.3-rc.1`, etc.) -> preprod environment
+    - Release tags (`v1.2.3`) -> prod environment
 
 ##### Assumptions
 
@@ -227,7 +228,7 @@ Fixed three deploy-blocking bugs:
 - If the application is more robust with multiple files, classes, and even we need to compile it, the multi staged Dockerfiles should be used with hardening steps, or use something like Buildpacks, which can support building Docker images easier with the help of a command and some configuration (hardening, multi layer, but also harder to troubleshoot)
 - Proper image tagging mechanism
 - More robust Kubernetes deployment and with other existing cloud resources supporting it, if the goal would be to deploy it on cloud (ACR for the images, AKS for the cluster, at least one AppGW, managed identites, etc)
-- More robust Helm chart on the deployment (resources, liveness/readiness probe)
+- More robust Helm chart on the deployment (resources, liveness/readiness probe, etc...)
 - Proper Terraform backend with a cloud storage with locking, storing the state, etc
 - ~~Better ruled Gitlab CI Jobs matched with the branching/releasing strategy what the team uses~~
     - Started to implement but there are still room for improvement, of course
@@ -242,27 +243,27 @@ Fixed three deploy-blocking bugs:
 
 - I've used k3s inside of WSL for the local dev environment, so a small working kubernetes cluster with ready to use kubectl config is expected
 - I've started the registry inside of the k3s manually and port-forwarded it to push the images from local terminal
-    - kubectl create namespace registry
-    - kubectl run registry --image=registry:2 --port=5000 -n registry
-    - kubectl expose pod registry --port=5000 --target-port=5000 --name=registry -n registry
-    - REGISTRY_IP=$(kubectl get svc registry -n registry -o jsonpath='{.spec.clusterIP}')
-    - sudo bash -c "echo '$REGISTRY_IP registry' >> /etc/hosts"
-    - kubectl port-forward svc/registry 5000:5000 -n registry
+    - `kubectl create namespace registry`
+    - `kubectl run registry --image=registry:2 --port=5000 -n registry`
+    - `kubectl expose pod registry --port=5000 --target-port=5000 --name=registry -n registry`
+    - `REGISTRY_IP=$(kubectl get svc registry -n registry -o jsonpath='{.spec.clusterIP}')`
+    - `sudo bash -c "echo '$REGISTRY_IP registry' >> /etc/hosts"`
+    - `kubectl port-forward svc/registry 5000:5000 -n registry`
 - All the Gitlab CI job commands are prepared for ready to paste from the script section to the local terminal (I was also used like that due to not having local Gitlab runners, didn't have time to complete that)
     - `variable-set-job-for-local-test`: Copy and paste the whole `script` section after the pipe to import all variables
     - `docker-build-and-push`: Feel free to also copy and paste the commands. 
     - `terraform_plan`: For that, first you need to paste the `.terraform_setup` anchor commands, after that you can run the plan command.
-        - cd ${TF_ROOT}
-        - terraform init
-        - terraform validate
-        - terraform plan -var-file=${TF_VARS_FILE} -out=${TF_PLAN_FILE}
+        - `cd ${TF_ROOT}`
+        - `terraform init`
+        - `terraform validate`
+        - `terraform plan -var-file=${TF_VARS_FILE} -out=${TF_PLAN_FILE}`
     - `terraform_apply`: Moving along to the apply, ready to paste the command
     - `terraform_destroy_plan` and `terraform_destroy_apply`
         - These protected with a variable `$CONFIRM_TO_DESTROY == "true"`
         - `export CONFIRM_TO_DESTROY=true`
 - I've also port-forwarded the application itself to test it.
-    - kubectl port-forward svc/myapp 8080:80 -n production
-    - ./app/test_requests.sh
+    - `kubectl port-forward svc/myapp 8080:80 -n production`
+    - `./app/test_requests.sh`
 
 ### Deliverables
 
