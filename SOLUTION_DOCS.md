@@ -83,6 +83,11 @@ Examples: https://github.com/firecow/gitlab-ci-local/tree/master/examples
 - removed a `dependencies` block -> as far as I know the needs completely does the same in our context
 - added the `terraform_apply` as the optional needs of destroy (only destroy after deploying, but preparing also for destroyingg it in a different pipeline)
 - added a `destroy` word for the destroy job to prevent mixed TF Plan files
+- fixing missalignments on the stages and job stages
+
+### Docker
+
+- added non-root user as this is easy and quick to change but has a huge impact
 
 ### README.md
 
