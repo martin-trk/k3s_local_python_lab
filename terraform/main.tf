@@ -1,4 +1,4 @@
-resource "kubernetes_namespace" "homework" {
+resource "kubernetes_namespace_v1" "homework" {
   metadata {
     name = var.namespace
   }
@@ -7,7 +7,7 @@ resource "kubernetes_namespace" "homework" {
 resource "helm_release" "homework" {
   name       = "homework"
   chart      = "../helm"
-  namespace  = kubernetes_namespace.homework.metadata[0].name
+  namespace  = kubernetes_namespace_v1.homework.metadata[0].name
 
   set = [
     {
