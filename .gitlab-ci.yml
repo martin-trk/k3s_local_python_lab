@@ -1,8 +1,8 @@
 stages:
   - build
   - pre-terraform
-  - terraform_plan
-  - terraform_apply
+  - deploy_plan
+  - deploy_apply
   - post-deployment-test
   - destroy_plan
   - destroy_apply
