@@ -30,6 +30,8 @@ variables:
     when: never
 
 .env_rules_destroy: &env_rules_destroy
+  - if: '$CONFIRM_TO_DESTROY != "true"'
+    when: never
   - if: '$CI_COMMIT_TAG || $CI_COMMIT_BRANCH == "main"'
     variables:
       TF_VARS_FILE: "tfvars/prod_terraform.tfvars"
