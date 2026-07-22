@@ -199,6 +199,8 @@ Fixed three deploy-blocking bugs:
 - Gated the `destroy` job behind `CONFIRM_TO_DESTROY` variable, nly appears if it is added
 - Added a local-only job for copy-pasting pipeline variables which are not present by default when testing it locally
 - Implemented Terraform plan job with plan file to prevent unneeded changes. Identical file creation with the value with combining pipeline ID and the pipeline start time stamp
+- Adding multiple TF Vars mapped with branching strategy similar to GitFlow
+    - The job is getting the tfvar based on the branch we are running the pipeline
 
 ##### Assumptions
 
@@ -224,7 +226,9 @@ Fixed three deploy-blocking bugs:
 - More robust Kubernetes deployment and with other existing cloud resources supporting it, if the goal would be to deploy it on cloud (ACR for the images, AKS for the cluster, at least one AppGW, managed identites, etc)
 - More robust Helm chart on the deployment (resources, liveness/readiness probe)
 - Proper Terraform backend with a cloud storage with locking, storing the state, etc
-- Better ruled Gitlab CI Jobs matched with the branching/releasing strategy what the team uses
+- ~~Better ruled Gitlab CI Jobs matched with the branching/releasing strategy what the team uses~~
+    - Started to implement but there are still room for improvement, of course
+    - For example, improve on adding a rule to be able to back up any environment based on tags. So if the dev environment got broken, we are able to deploy dev from tags, bot not the opposite way.
 - Templatized Gitlab CI Jobs can be also useful with tagged or hashed version of the template
 - Pre-Jobs, gates on the pipeline (Linting, Security checks -PW checking, scanning-, Unit test, etc)
 - Pre commit hooks for preventing the Helm and/or Terraform syntax errors, if it is applicable for the environment
