@@ -29,6 +29,19 @@ variables:
   - if: '$CI_COMMIT_BRANCH'
     when: never
 
+.env_rules_destroy: &env_rules_destroy
+  - if: '$CI_COMMIT_TAG || $CI_COMMIT_BRANCH == "main"'
+    variables:
+      TF_VARS_FILE: "tfvars/prod_terraform.tfvars"
+  - if: '$CI_COMMIT_BRANCH =~ /^release\/.*/'
+    variables:
+      TF_VARS_FILE: "tfvars/preprod_terraform.tfvars"
+  - if: '$CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH =~ /^feat\/.*/'
+    variables:
+      TF_VARS_FILE: "tfvars/dev_terraform.tfvars"
+  - if: '$CI_COMMIT_BRANCH'
+    when: never
+
 # Created for local test due to the failure of gitlab-ci-local
 # Ready to copy and paste commands to set the variables which would been set by the pipeline on variables block above.
 # This enables to run all the jobs manually
@@ -128,17 +141,13 @@ terraform_destroy_plan:
       optional: true
   stage: destroy_plan
   when: manual
-  rules: *env_rules
+  rules: *env_rules_destroy
   script:
     - terraform plan -destroy -var-file=${TF_VARS_FILE} -out=assessment-destroy-plan-${CI_PIPELINE_ID}.tfplan
   artifacts:
     paths:
       - ${TF_ROOT}/assessment-destroy-plan-${CI_PIPELINE_ID}.tfplan
     expire_in: 1 day
-  only:
-    variables:
-      - $CONFIRM_TO_DESTROY == "true"
-
 
 terraform_destroy_apply:
   <<: *terraform_setup
@@ -146,7 +155,7 @@ terraform_destroy_apply:
   when: manual
   needs:
     - terraform_destroy_plan
-  rules: *env_rules
+  rules: *env_rules_destroy
   script:
     - terraform apply -input=false assessment-destroy-plan-${CI_PIPELINE_ID}.tfplan
   artifacts:
@@ -154,6 +163,3 @@ terraform_destroy_apply:
       - ${TF_ROOT}/terraform.tfstate
       - ${TF_ROOT}/terraform.tfstate.backup
     expire_in: 30 days
-  only:
-    variables:
-      - $CONFIRM_TO_DESTROY == "true"
