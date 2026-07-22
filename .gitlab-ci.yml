@@ -3,6 +3,7 @@ stages:
   - pre-terraform
   - terraform_plan
   - terraform_apply
+  - post-deployment-test
   - destroy_plan
   - destroy_apply
 
@@ -12,20 +13,9 @@ variables:
   MYAPP_IMAGE_TAG: "v0.1.0-ci"
   MYAPP_FULL_PATH: "$LOCAL_DOCKER_REGISTRY/$MYAPP_IMAGE:$MYAPP_IMAGE_TAG"
   TF_ROOT: "${CI_PROJECT_DIR}/terraform"
-  TF_PLAN_FILE: "plan-${CI_PIPELINE_ID}-$(date +%Y%m%d-%H%M%S).tfplan"
+  TF_PLAN_FILE: "assessment-plan-${CI_PIPELINE_ID}-$(date +%Y%m%d-%H%M%S).tfplan"
   TF_VARS_FILE: "tfvars/prod_terraform.tfvars"
   LOCAL_RUN: "false"
-
-.terraform_setup: &terraform_setup
-  image: hashicorp/terraform:latest
-  cache:
-    key: terraform
-    paths:
-      - ${TF_ROOT}/.terraform
-      - ${TF_ROOT}/.terraform.lock.hcl
-  before_script:
-    - cd ${TF_ROOT}
-    - terraform init
 
 # Created for local test due to the failure of gitlab-ci-local
 # Ready to copy and paste commands to set the variables which would been set by the pipeline on variables block above.
@@ -47,7 +37,9 @@ variable-set-job-for-local-test:
         echo $CI_PROJECT_DIR
         export TF_ROOT=${CI_PROJECT_DIR}/terraform
         echo $TF_ROOT
-        export TF_PLAN_FILE=plan-${CI_PIPELINE_ID}-$(date +%Y%m%d-%H%M%S).tfplan
+        export CI_PIPELINE_ID=12345679
+        echo $CI_PIPELINE_ID
+        export TF_PLAN_FILE=assessment-plan-${CI_PIPELINE_ID}-$(date +%Y%m%d-%H%M%S).tfplan
         echo $TF_PLAN_FILE
         export TF_VARS_FILE=tfvars/prod_terraform.tfvars
         echo $TF_VARS_FILE
@@ -55,7 +47,7 @@ variable-set-job-for-local-test:
     variables:
       - $LOCAL_RUN == "true"
 
-build:
+docker-build-and-push:
   image: docker:cli
   services:
     - name: docker:dind
@@ -67,6 +59,19 @@ build:
   script:
     - docker build --tag ${MYAPP_FULL_PATH} ./app
     - docker push ${MYAPP_FULL_PATH}
+
+# Ideally it would be placed into a template file, or in the beginning of the CI file, placed here to prevent missing of these scripts running in local
+.terraform_setup: &terraform_setup
+  image: hashicorp/terraform:latest
+  cache:
+    key: terraform
+    paths:
+      - ${TF_ROOT}/.terraform
+      - ${TF_ROOT}/.terraform.lock.hcl
+  before_script:
+    - cd ${TF_ROOT}
+    - terraform init
+    - terraform validate
 
 terraform_plan:
   <<: *terraform_setup
@@ -88,24 +93,32 @@ terraform_apply:
     - terraform_plan
   script:
     - terraform apply -input=false ${TF_PLAN_FILE}
-  dependencies:
-    - terraform_plan
   artifacts:
     paths:
       - ${TF_ROOT}/terraform.tfstate
       - ${TF_ROOT}/terraform.tfstate.backup
     expire_in: 30 days
 
+deployment_post_test:
+  stage: post-deployment-test
+  needs:
+    - terraform_apply
+  script:
+    - cd ${CI_PROJECT_DIR}
+    - ./app/test_requests.sh
+
 terraform_destroy_plan:
-  needs: []
   <<: *terraform_setup
+  needs:
+    - job: terraform_apply
+      optional: true
   stage: destroy_plan
   when: manual
   script:
-    - terraform plan -destroy -var-file=${TF_VARS_FILE} -out=${TF_PLAN_FILE}
+    - terraform plan -destroy -var-file=${TF_VARS_FILE} -out=assessment-destroy-plan-${CI_PIPELINE_ID}-$(date +%Y%m%d-%H%M%S).tfplan
   artifacts:
     paths:
-      - ${TF_ROOT}/${TF_PLAN_FILE}
+      - ${TF_ROOT}/assessment-destroy-plan-${CI_PIPELINE_ID}-$(date +%Y%m%d-%H%M%S).tfplan
     expire_in: 1 day
   only:
     variables:
@@ -119,7 +132,7 @@ terraform_destroy_apply:
   needs:
     - terraform_destroy_plan
   script:
-    - terraform apply -input=false ${TF_PLAN_FILE}
+    - terraform apply -input=false assessment-destroy-plan-${CI_PIPELINE_ID}-$(date +%Y%m%d-%H%M%S).tfplan
   artifacts:
     paths:
       - ${TF_ROOT}/terraform.tfstate
