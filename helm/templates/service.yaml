@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: myapp
+  name: {{ .Release.Name }}-{{ .Values.name }}-service
 spec:
   selector: 
-    app: myapp
+    app: {{ .Release.Name }}-{{ .Values.name }}
   ports:
-    - port: 80
-      targetPort: 8080
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.image.containerPort }}

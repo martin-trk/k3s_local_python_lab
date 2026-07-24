@@ -1,10 +1,16 @@
 replicaCount: 1
 
+name: myapp
+
 image:
   repository: myapp
   tag: 0.1.0
+  containerPort: 8080
 
 service:
-  port: 8080
+  port: 80
+
+ingress:
+  host: myapp.local
 
 environment: dev
