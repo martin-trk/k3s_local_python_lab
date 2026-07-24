@@ -1,13 +1,16 @@
 # User guide
 
-- I've used k3s inside of WSL for the local dev environment.
-- I've started the registry inside of the k3s manually and port-forwarded it to push the images from local terminal
-    - kubectl create namespace registry
-    - kubectl run registry --image=registry:2 --port=5000 -n registry
-    - kubectl expose pod registry --port=5000 --target-port=5000 --name=registry -n registry
-    - REGISTRY_IP=$(kubectl get svc registry -n registry -o jsonpath='{.spec.clusterIP}')
-    - sudo bash -c "echo '$REGISTRY_IP registry' >> /etc/hosts"
-    - kubectl port-forward svc/registry 5000:5000 -n registry
-- I've also port-forwarded the application itself to test it.
-    - kubectl port-forward svc/myapp 8080:80 -n production
-    - ./app/test_requests.sh
+## Local development environment
+
+- I've used **k3s inside WSL** as the local Kubernetes environment.
+- To run the application locally, copy the local GitLab CI job configuration and execute it with `LOCAL_RUN=true`.
+- The job will automatically:
+  - Create the local container registry inside k3s.
+  - Expose it through a NodePort.
+  - Configure the required image variables.
+  - Build and push the application image.
+  - Deploy the application through Terraform.
+
+### Local registry setup
+
+Copy the `setup_local_registry` job from the GitLab CI configuration, and the commands of that, it will able to use everything dynamically.
