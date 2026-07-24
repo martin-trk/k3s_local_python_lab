@@ -3,11 +3,11 @@ terraform {
 }
 
 provider "kubernetes" {
-    config_path = "/etc/rancher/k3s/k3s.yaml"
+    config_path = var.kube_config_path
 }
 
 provider "helm" {
     kubernetes = {
-        config_path = "/etc/rancher/k3s/k3s.yaml"
+        config_path = var.kube_config_path
     }
 }
